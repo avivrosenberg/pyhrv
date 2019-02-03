@@ -1,0 +1,7 @@
+[report]
+omit =
+    setup.py
+    pyhrv/__main__.py
+    pyhrv/_version.py
+    versioneer.py
+    tests/*
