@@ -4,6 +4,8 @@ import versioneer
 requirements = [
     # package requirements go here
     "wfdb",
+    "numpy",
+    "tqdm"
 ]
 
 setup(
