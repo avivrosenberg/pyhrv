@@ -1,10 +1,10 @@
 import io
 import unittest
-import pyhrv.wfdb_tools.db_splitter as db_splitter
+import pyhrv.wfdb.db_splitter as db_splitter
 
-import tests.wfdb_tools
+import tests.wfdb
 
-TEST_RESOURCES_PATH = f'{tests.wfdb_tools.TEST_RESOURCES_PATH}/db_splitter'
+TEST_RESOURCES_PATH = f'{tests.wfdb.TEST_RESOURCES_PATH}/db_splitter'
 
 
 class SplitByAgeTest(unittest.TestCase):

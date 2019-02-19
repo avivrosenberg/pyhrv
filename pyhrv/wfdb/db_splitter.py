@@ -4,14 +4,18 @@ import pathlib
 import pprint
 import re
 import sys
+import logging.config
 
 import tqdm
 
 MIN_AGE = 0
 MAX_AGE = 120
 
+logger = logging.getLogger(__name__)
+
 
 def is_dir(dirname):
+    dirname = os.path.expanduser(dirname)
     if not os.path.isdir(dirname):
         raise argparse.ArgumentTypeError(f'{dirname} is not a directory')
     else:
@@ -66,8 +70,8 @@ class BaseSplitter(object):
         if not out_dir:
             out_dir = in_dir
 
-        self.in_dir = pathlib.Path(in_dir)
-        self.out_dir = pathlib.Path(out_dir)
+        self.in_dir = pathlib.Path(in_dir).expanduser()
+        self.out_dir = pathlib.Path(out_dir).expanduser()
 
         header_files = self.in_dir.glob("**/*.hea")
         self.records = [h.parent.joinpath(h.stem)
@@ -77,11 +81,6 @@ class BaseSplitter(object):
 
         if len(self.records) == 0:
             raise ValueError(f"Can't find any records in {in_dir}")
-
-        self.stdout = sys.stdout if 'stdout' not in kwargs else kwargs[
-            'stdout']
-        self.stderr = sys.stderr if 'stderr' not in kwargs else kwargs[
-            'stderr']
 
     def split(self):
         raise NotImplementedError('Must be implemented in deriving classes')
@@ -113,13 +112,13 @@ class BaseSplitter(object):
 
         return affiliated_records
 
-    def print_affiliation(self):
+    def print_affiliation(self, stream=sys.stdout):
         for age_group, group_members in self._group_affiliation.items():
             members_stem = sorted(m.stem for m in group_members)
             print(f'* Group {age_group}, n={len(group_members):02d}:',
-                  file=self.stdout)
+                  file=stream)
             pprint.pprint(members_stem, width=120, compact=True,
-                          stream=self.stdout)
+                          stream=stream)
 
     def symlink_record(self, rec_name, group_dir=None):
         if not group_dir:
@@ -127,26 +126,32 @@ class BaseSplitter(object):
         else:
             dest_dir = self.out_dir.joinpath(group_dir)
 
+        prefix = pathlib\
+            .Path(os.path.commonpath((dest_dir, rec_name)))\
+            .absolute()
+        dest_dir = dest_dir.relative_to(prefix)
+
         rec_files = []
         for ext in (self.REC_EXTENSIONS + self.ANN_EXTENSIONS):
             rec_file = pathlib.Path(str.format("{}.{}", rec_name, ext))
             if rec_file.exists():
+                rec_file = rec_file.relative_to(prefix)
                 rec_files.append(rec_file)
 
         for rec_file in rec_files:
-            dest_file = dest_dir.joinpath(rec_file)
+            dest_file = prefix.joinpath(dest_dir.joinpath(rec_file))
             if dest_file.exists():
                 os.remove(str(dest_file))
 
             os.makedirs(str(dest_file.parent), exist_ok=True)
 
-            dest_file.symlink_to(rec_file.absolute())
+            dest_file.symlink_to(prefix.joinpath(rec_file))
 
     def symlink_by_group(self, group_dirs=None):
         if not group_dirs:
             group_dirs = {g: str(g) for g in self._group_affiliation.keys()}
 
-        print(f'Creating symlinks in {str(self.out_dir)}', file=self.stdout)
+        logger.info(f'Creating symlinks in {str(self.out_dir)}')
 
         progress_iter = tqdm.tqdm(self.get_affiliated_records())
         for record in progress_iter:
@@ -168,20 +173,20 @@ class SplitByAge(BaseSplitter):
         for group in age_groups:
             assert len(group) == 2
             for age in group:
-                assert age in range(MIN_AGE, MAX_AGE)
+                assert age in range(MIN_AGE, MAX_AGE+1)
 
         self.groups = [tuple(sorted(g)) for g in age_groups]
         self.group_dirs = {g: f'age_{g[0]}_{g[1]}' for g in self.groups}
 
     def split(self):
-        print(f'Splitting n={len(self.records)} records '
-              f'by age groups={self.groups}', file=self.stdout)
+        logger.info(f'Splitting n={len(self.records)} records '
+                    f'by age groups={self.groups}')
 
         for rec_name in self:
             age = self.get_age(rec_name)
             if not age:
-                print(f"Failed to determine age for {rec_name}, skipping...",
-                      file=self.stderr)
+                logger.error(f"Failed to determine age for {rec_name}, "
+                             f"skipping...")
                 continue
 
             for age_group in self.groups:
@@ -203,6 +208,10 @@ class SplitByAge(BaseSplitter):
 
 
 if __name__ == '__main__':
+    # load logger config
+    lini = pathlib.Path(__file__).resolve().parents[2].joinpath('logging.ini')
+    logging.config.fileConfig(lini, disable_existing_loggers=False)
+
     parsed_args = parse_cli()
 
     splitter = parsed_args.handler_class(**vars(parsed_args))
@@ -212,7 +221,6 @@ if __name__ == '__main__':
     splitter.print_affiliation()
 
     if parsed_args.symlink:
-        print("")
         splitter.symlink_by_group()
 
 __all__ = [BaseSplitter, SplitByAge]

@@ -5,10 +5,10 @@ import warnings
 from pathlib import Path
 import wfdb
 
-from pyhrv.wfdb_tools.ecgpuwave import ECGPuWave
-import tests.wfdb_tools
+from pyhrv.wfdb.qrs import ECGPuWave
+import tests.wfdb
 
-RESOURCES_PATH = f'{tests.wfdb_tools.TEST_RESOURCES_PATH}/ecgpuwave'
+RESOURCES_PATH = f'{tests.wfdb.TEST_RESOURCES_PATH}/ecgpuwave'
 TEST_ANN_EXT = 'test'
 
 
@@ -30,12 +30,13 @@ class ECGPuWaveTest(unittest.TestCase):
 
     def test_sig0_full_noatr_num_annotations(self):
         for signal_idx in [0, None]:
-            res = self.ecgpuwave(self.test_rec, TEST_ANN_EXT, signal=signal_idx)
+            res = self.ecgpuwave(self.test_rec, TEST_ANN_EXT,
+                                 channel=signal_idx)
             self.assertTrue(res)
             self._helper_check_num_annotations(684)
 
     def test_sig1_full_noatr_num_annotations(self):
-        res = self.ecgpuwave(self.test_rec, TEST_ANN_EXT, signal=1)
+        res = self.ecgpuwave(self.test_rec, TEST_ANN_EXT, channel=1)
         self.assertTrue(res)
         self._helper_check_num_annotations(655)
 
@@ -48,7 +49,7 @@ class ECGPuWaveTest(unittest.TestCase):
 
     def test_sig1_last20s_noatr_num_annotations(self):
         for from_time in ['0:40', '0:0:40', '00:00:40', 's14400']:
-            res = self.ecgpuwave(self.test_rec, TEST_ANN_EXT, signal=1,
+            res = self.ecgpuwave(self.test_rec, TEST_ANN_EXT, channel=1,
                                  from_time=from_time)
             self.assertTrue(res)
             self._helper_check_num_annotations(209)
