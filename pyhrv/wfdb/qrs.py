@@ -106,6 +106,8 @@ def ecgpuwave_wrapper(record: str, out_ann_ext: str,
     .. [1] https://www.physionet.org/physiotools/ecgpuwave/
        [2] https://www.physionet.org/physiotools/wag/intro.htm#time
     """
+    if not utils.is_record(record):
+        raise ValueError(f"Can't find record {record}")
 
     rec_dir = os.path.dirname(record)
     rec_name = os.path.basename(record)
