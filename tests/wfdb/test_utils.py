@@ -4,7 +4,7 @@ from pathlib import Path
 from tests.wfdb import TEST_RESOURCES_PATH
 from pyhrv.wfdb import ECG_CHANNEL_PATTERN
 
-from pyhrv.wfdb.utils import find_ecg_channel
+import pyhrv.wfdb.utils as utils
 
 
 class TestECGChannelRegex(object):
@@ -44,13 +44,33 @@ class TestFindECGChannel(object):
         self.resource_path = Path(f'{TEST_RESOURCES_PATH}/find_ecg_channel')
 
     def test_first_channel(self):
-        ch = find_ecg_channel(self.resource_path/'ch0')
+        ch = utils.find_ecg_channel(self.resource_path/'ch0')
         assert ch == 0
 
     def test_second_channel(self):
-        ch = find_ecg_channel(self.resource_path/'ch1')
+        ch = utils.find_ecg_channel(self.resource_path/'ch1')
         assert ch == 1
 
     def test_no_channel(self):
-        ch = find_ecg_channel(self.resource_path/'nochan')
+        ch = utils.find_ecg_channel(self.resource_path/'nochan')
         assert ch is None
+
+
+class TestIsRecord(object):
+    def setup_method(self):
+        self.resource_path = Path(f'{TEST_RESOURCES_PATH}/wfdb')
+
+    def test_non_existent_record(self):
+        assert not utils.is_record(self.resource_path/'no_such_record_123')
+
+    def test_header_only_record(self):
+        assert not utils.is_record(self.resource_path/'foo')
+        assert utils.is_record(self.resource_path/'foo', dat_ext=None)
+
+    def test_header_data_record(self):
+        assert utils.is_record(self.resource_path/'100')
+        assert utils.is_record(self.resource_path/'101')
+
+    def test_header_data_ann_record(self):
+        assert utils.is_record(self.resource_path/'100', ann_exts=('atr',))
+        assert utils.is_record(self.resource_path/'101', ann_exts='atr')

@@ -1,5 +1,6 @@
 import re
 
+import os.path
 import numpy as np
 import wfdb
 
@@ -53,3 +54,33 @@ def find_ecg_channel(rec_path):
         if pattern.match(name):
             return i
     return None
+
+
+def is_record(rec_path: str, dat_ext: str = 'dat', ann_exts=()):
+    """
+    Checks whether the given recrod path is a PhysioNet record.
+    A record must have at least a header file (.hea).
+    See also [1]_.
+
+    :param rec_path: Path of record, without any file extension, for example
+    'db/mitdb/100'.
+    :param dat_ext: File extension of data file (usually dat or mat). Can
+    also be None to indicate a header-only record.
+    :param ann_exts: Iterable of annotation file extensions to check for.
+    :return: True if the given rec_path corresponds to a PhysioNet record
+    with matching header file, data file and annotation files.
+
+    .. [1] https://www.physionet.org/physiotools/wag/intro.htm
+    """
+    if type(ann_exts) == str:
+        ann_exts = (ann_exts,)
+
+    exts_to_check = ('hea', dat_ext, *ann_exts)
+
+    for ext in exts_to_check:
+        if ext is None:
+            continue
+        if not os.path.isfile(f'{rec_path}.{ext}'):
+            return False
+
+    return True
