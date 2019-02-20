@@ -15,11 +15,14 @@ def rdann_by_type(rec_path: str, ann_ext: str,
     :param ann_ext: extension of annotation file to load.
     :param types: A string of chars of the annotation types to find (see [1]_).
     :return: A dictionary, mapping from the annotation type (a
-    char) to an array of indices in the signal.
+    char) to a numpy array of indices in the signal.
 
     .. [1] https://www.physionet.org/physiobank/annotations.shtml
     """
     ann_to_idx = {ann_type: [] for ann_type in types}
+
+    # In case it's a Path object; wfdb can't handle that
+    rec_path = str(rec_path)
 
     # Read annotations
     ann = wfdb.rdann(rec_path, ann_ext)
