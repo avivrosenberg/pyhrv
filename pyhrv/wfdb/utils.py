@@ -87,3 +87,55 @@ def is_record(rec_path: str, dat_ext: str = 'dat', ann_exts=()):
             return False
 
     return True
+
+
+def wfdb_time_to_samples(time: str, fs):
+    """
+    Converts a WFDB time string [1]_ to samples.
+
+    :param time: A string in the WFDB time format.
+    :param fs: The sampling frequency of the record.
+    :return: An integer equal to the number of samples the given time string
+    represents.
+
+    .. [1] https://www.physionet.org/physiotools/wag/intro.htm#time
+    """
+
+    # 'e' means last sample
+    if time == 'e':
+        return -1
+
+    # 's1234' means sample 1234
+    m = re.match(r'^s(\d+)$', time)
+    if m:
+        return int(m.group(1))
+
+    # 'sss..s'
+    m = re.match(r'^\d+$', time)
+    if m:
+        return int(int(time) * fs)
+
+    # 'hh:mm:ss'
+    m = re.match(r'^(\d{1,2}):(\d{1,2}):(\d{1,2})$', time)
+    if m:
+        h, m, s = m.groups()
+        h, m, s = int(h), int(m), int(s)
+        if m > 60 or s > 60:
+            raise ValueError("Invalid number of minutes or seconds")
+        seconds = h * 3600 + m * 60 + s
+        return int(seconds * fs)
+
+    # 'mm:ss.yyy'
+    m = re.match(r'^(\d{1,2}):(\d{1,2})\.(\d{1,3})$', time)
+    if m:
+        m, s, yyy = m.groups()
+        m, s = int(m), int(s)
+        ms = int(yyy + (3-len(yyy)) * '0')
+        if m > 60 or s > 60:
+            raise ValueError("Invalid number of minutes or seconds")
+        seconds = m * 60 + s + ms/1000.
+        return int(seconds * fs)
+
+    raise ValueError(f"The given time string ({time}) in not in a "
+                     f"recognised format.")
+
