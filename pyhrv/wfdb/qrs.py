@@ -4,7 +4,6 @@ import subprocess
 import warnings
 import glob
 import tempfile
-import random
 
 import wfdb
 
@@ -29,7 +28,7 @@ def ecgpuwave_detect_sig(sig, fs, from_samp=0, to_samp=-1, **kw):
 
     # We'll write the given data to a temporary record
     temp_dir = tempfile.gettempdir()
-    temp_recname = f'tmp_{random.randint(0, 10000):04d}'
+    temp_recname = f'tmprec_{os.getpid()}'
     rec_path = os.path.join(temp_dir, temp_recname)
 
     try:
@@ -64,7 +63,7 @@ def ecgpuwave_detect_rec(rec_path, channel=None, from_time=None, to_time=None,
     if channel is None:
         channel = utils.find_ecg_channel(rec_path)
 
-    ann_ext = 'ecgatr'
+    ann_ext = f'ecgatr{os.getpid()}'
     try:
         # Run ecgpuwave
         ecgpuwave_wrapper(rec_path, ann_ext, channel=channel,
@@ -76,7 +75,7 @@ def ecgpuwave_detect_rec(rec_path, channel=None, from_time=None, to_time=None,
         return ann_to_idx[ann_type]
     finally:
         # Remove the annotation file
-        ann_file = os.path.join(rec_path, f'.{ann_ext}')
+        ann_file = f'{rec_path}.{ann_ext}'
         if os.path.exists(ann_file):
             os.remove(ann_file)
 
