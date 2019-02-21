@@ -24,7 +24,7 @@ def rdann_by_type(rec_path: str, ann_ext: str,
     .. [1] https://www.physionet.org/physiotools/wag/intro.htm#time
     .. [2] https://www.physionet.org/physiobank/annotations.shtml
     """
-    if not is_record(rec_path, ann_exts=(ann_ext,)):
+    if not is_record(rec_path, ann_ext=ann_ext):
         raise ValueError(f"Can't find record {rec_path}")
 
     ann_to_idx = {ann_type: [] for ann_type in types}
@@ -76,34 +76,34 @@ def find_ecg_channel(rec_path):
     return None
 
 
-def is_record(rec_path: str, dat_ext: str = 'dat', ann_exts=()):
+def is_record(rec_path: str, dat_ext: str = 'dat', ann_ext: str = None):
     """
     Checks whether the given recrod path is a PhysioNet record.
-    A record must have at least a header file (.hea).
+    A record must have at least a header file (.hea), and either a data file
+    (.dat/.mat other) or an annotation file.
     See also [1]_.
 
     :param rec_path: Path of record, without any file extension, for example
     'db/mitdb/100'.
     :param dat_ext: File extension of data file (usually dat or mat). Can
     also be None to indicate a header-only record.
-    :param ann_exts: Iterable of annotation file extensions to check for.
+    :param ann_ext: Extension annotation file to check for.
     :return: True if the given rec_path corresponds to a PhysioNet record
-    with matching header file, data file and annotation files.
+    with matching header file, data file and annotation files. If the data
+    is not present but atleast one annotation exists, it's still a record.
 
     .. [1] https://www.physionet.org/physiotools/wag/intro.htm
     """
-    if type(ann_exts) == str:
-        ann_exts = (ann_exts,)
+    if not os.path.isfile(f'{rec_path}.hea'):
+        return False
 
-    exts_to_check = ('hea', dat_ext, *ann_exts)
+    if dat_ext and os.path.isfile(f'{rec_path}.{dat_ext}'):
+        return True
 
-    for ext in exts_to_check:
-        if ext is None:
-            continue
-        if not os.path.isfile(f'{rec_path}.{ext}'):
-            return False
+    if ann_ext and os.path.isfile(f'{rec_path}.{ann_ext}'):
+        return True
 
-    return True
+    return False
 
 
 def wfdb_time_to_samples(time: str, fs):

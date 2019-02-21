@@ -65,18 +65,22 @@ class TestIsRecord(object):
 
     def test_non_existent_record(self):
         assert not utils.is_record(self.resource_path / 'no_such_record_123')
+        assert not utils.is_record(self.resource_path / 'no_such_record_123',
+                                   dat_ext=None)
+        assert not utils.is_record(self.resource_path / 'no_such_record_123',
+                                   dat_ext=None, ann_ext='foo')
 
-    def test_header_only_record(self):
-        assert not utils.is_record(self.resource_path / 'foo')
-        assert utils.is_record(self.resource_path / 'foo', dat_ext=None)
+    def test_ann_only_record(self):
+        assert utils.is_record(self.resource_path / 'foo', ann_ext='bar')
+        assert utils.is_record(self.resource_path / 'foo', ann_ext='bar',
+                               dat_ext=None)
 
     def test_header_data_record(self):
         assert utils.is_record(self.resource_path / '100')
         assert utils.is_record(self.resource_path / '101')
 
     def test_header_data_ann_record(self):
-        assert utils.is_record(self.resource_path / '100', ann_exts=('atr',))
-        assert utils.is_record(self.resource_path / '101', ann_exts='atr')
+        assert utils.is_record(self.resource_path / '101', ann_ext='atr')
 
 
 class TestWFDBTimeToSamples(object):
