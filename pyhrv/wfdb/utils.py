@@ -1,4 +1,5 @@
 import re
+import sys
 
 import os.path
 import numpy as np
@@ -126,16 +127,15 @@ def wfdb_time_to_samples(time: str, fs):
         return int(seconds * fs)
 
     # 'mm:ss.yyy'
-    m = re.match(r'^(\d{1,2}):(\d{1,2})\.(\d{1,3})$', time)
+    m = re.match(r'^(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?$', time)
     if m:
         m, s, yyy = m.groups()
         m, s = int(m), int(s)
-        ms = int(yyy + (3-len(yyy)) * '0')
+        ms = int(yyy + (3 - len(yyy)) * '0') if yyy else 0
         if m > 60 or s > 60:
             raise ValueError("Invalid number of minutes or seconds")
-        seconds = m * 60 + s + ms/1000.
+        seconds = m * 60 + s + ms / 1000.
         return int(seconds * fs)
 
     raise ValueError(f"The given time string ({time}) in not in a "
                      f"recognised format.")
-

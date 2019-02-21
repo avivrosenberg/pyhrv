@@ -100,6 +100,14 @@ class TestWFDBTimeToSamples(object):
                                           self.fs) == 37210 * self.fs
 
     def test_mmssyyy(self):
+        assert utils.wfdb_time_to_samples('2:3',
+                                          self.fs) == int(123 * self.fs)
+        assert utils.wfdb_time_to_samples('02:3',
+                                          self.fs) == int(123 * self.fs)
+        assert utils.wfdb_time_to_samples('2:03',
+                                          self.fs) == int(123 * self.fs)
+        assert utils.wfdb_time_to_samples('02:03',
+                                          self.fs) == int(123 * self.fs)
         assert utils.wfdb_time_to_samples('2:3.4',
                                           self.fs) == int(123.4 * self.fs)
         assert utils.wfdb_time_to_samples('2:3.40',
