@@ -9,24 +9,40 @@ from pyhrv.wfdb.consts import *
 
 
 def rdann_by_type(rec_path: str, ann_ext: str,
+                  from_time: str = None, to_time: str = None,
                   types: str = WFDB_ANN_ALL_PEAK_TYPES):
     """
     Reads WFDB annotation file and returns annotations of specific types.
     :param rec_path: Record path (without extension).
     :param ann_ext: extension of annotation file to load.
-    :param types: A string of chars of the annotation types to find (see [1]_).
+    :param from_time: Start time. A string in PhysioNet time format [1]_.
+    :param to_time: End time.  A string in PhysioNet time format [1]_.
+    :param types: A string of chars of the annotation types to find (see [2]_).
     :return: A dictionary, mapping from the annotation type (a
     char) to a numpy array of indices in the signal.
 
-    .. [1] https://www.physionet.org/physiobank/annotations.shtml
+    .. [1] https://www.physionet.org/physiotools/wag/intro.htm#time
+    .. [2] https://www.physionet.org/physiobank/annotations.shtml
     """
+    if not is_record(rec_path, ann_exts=(ann_ext,)):
+        raise ValueError(f"Can't find record {rec_path}")
+
     ann_to_idx = {ann_type: [] for ann_type in types}
 
     # In case it's a Path object; wfdb can't handle that
     rec_path = str(rec_path)
 
+    # Handle from/to by converting to samples
+    sampfrom, sampto = 0, sys.maxsize
+    if from_time is not None or to_time is not None:
+        header = wfdb.rdheader(rec_path)
+        if from_time is not None:
+            sampfrom = wfdb_time_to_samples(from_time, header.fs)
+        if to_time is not None:
+            sampto = wfdb_time_to_samples(to_time, header.fs)
+
     # Read annotations
-    ann = wfdb.rdann(rec_path, ann_ext)
+    ann = wfdb.rdann(rec_path, ann_ext, sampfrom, sampto)
 
     # Find annotations of requested type
     annotations_pattern = re.compile(fr'[{types}]')
