@@ -210,7 +210,9 @@ class SplitByAge(BaseSplitter):
 if __name__ == '__main__':
     # load logger config
     lini = pathlib.Path(__file__).resolve().parents[2].joinpath('logging.ini')
-    logging.config.fileConfig(lini, disable_existing_loggers=False)
+    if os.path.isfile(lini):
+        logging.config.fileConfig(lini, disable_existing_loggers=False)
+        logger.info(lini)
 
     parsed_args = parse_cli()
 
