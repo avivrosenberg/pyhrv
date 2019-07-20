@@ -5,6 +5,8 @@ import os.path
 import numpy as np
 import wfdb
 
+from typing import NamedTuple
+
 from pyhrv.wfdb.consts import *
 
 
@@ -155,3 +157,26 @@ def wfdb_time_to_samples(time: str, fs):
 
     raise ValueError(f"The given time string ({time}) in not in a "
                      f"recognised format.")
+
+
+def sec_to_time(sec: float):
+    if sec < 0:
+        raise ValueError('Invalid argument value')
+    d = int(sec // (3600 * 24))
+    h = int((sec // 3600) % 24)
+    m = int((sec // 60) % 60)
+    s = int(sec % 60)
+    ms = int((sec % 1) * 1000)
+    return __T(d, h, m, s, ms)
+
+
+class __T(NamedTuple):
+    d: int
+    h: int
+    m: int
+    s: int
+    ms: int
+
+    def __repr__(self):
+        return f'{"" if self.d == 0 else f"{self.d}+"}' \
+            f'{self.h:02d}:{self.m:02d}:{self.s:02d}.{self.ms:03d}'
