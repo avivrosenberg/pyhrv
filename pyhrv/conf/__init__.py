@@ -1,5 +1,10 @@
+import os
 import confuse
 
+
+CONFIG_DEFAULT_FILENAME = os.path.join(
+    os.path.dirname(__file__), 'config_default.yaml'
+)
 
 pyhrv_conf = confuse.LazyConfig('pyhrv', __name__)
 
@@ -50,3 +55,10 @@ def get_override(common_prefix, **param_overrides):
 
 def load(filename: str):
     pyhrv_conf.set_file(filename)
+
+
+def load_default():
+    load(CONFIG_DEFAULT_FILENAME)
+
+
+load_default()

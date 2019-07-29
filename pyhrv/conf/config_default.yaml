@@ -78,10 +78,6 @@ hrv_freq:
         value: [lomb, ar, welch]  # possible methods: 
         description: Methods of spectral calculation (can be lomb/ar/welch/fft)
         name: Spectrum types
-    power_methods:
-        value: [] # Empty means first method in 'methods'
-        description: Spectrums to calculate power from
-        name: Spectrums for power calculation
     norm_method:
         value: total # total, lf_hf
         description: How to normalize the LF and HF bands
@@ -108,12 +104,12 @@ hrv_freq:
         name: HF Band
         units: Hz
     extra_bands:
-        value: []
+        value: ~
         description: Additional frequency bands for power calculation (each element should be a two-element array)
         name: Extra bands
         units: Hz
     window_minutes:
-        value: 5
+        value: ~
         description: Duration of winodow for spectral averaging
         name: Spectral window duration
         units: Minutes
