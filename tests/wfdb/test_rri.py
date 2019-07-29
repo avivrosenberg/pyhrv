@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pyhrv.wfdb.rri as rri
 
-from tests.wfdb import TEST_RESOURCES_PATH
+from . import TEST_RESOURCES_PATH
 
 
 class TestECGRR(object):

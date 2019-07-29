@@ -3,11 +3,12 @@ import os
 from pathlib import Path
 import wfdb
 
-import tests.wfdb
 import pytest
 from pyhrv.wfdb.qrs import ecgpuwave_wrapper
 
-RESOURCES_PATH = f'{tests.wfdb.TEST_RESOURCES_PATH}/ecgpuwave'
+from . import TEST_RESOURCES_PATH
+
+RESOURCES_PATH = f'{TEST_RESOURCES_PATH}/ecgpuwave'
 TEST_ANN_EXT = 'test'
 
 

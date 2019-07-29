@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.wfdb import TEST_RESOURCES_PATH
+from . import TEST_RESOURCES_PATH
 from pyhrv.wfdb import ECG_CHANNEL_PATTERN
 
 import pyhrv.wfdb.utils as utils
