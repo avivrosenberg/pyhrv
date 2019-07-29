@@ -5,7 +5,7 @@ import pyhrv.wfdb.utils as utils
 
 
 def ecgrr(rec_path, ann_ext=None, channel=None, from_time=None, to_time=None,
-          detector=qrs.ecgpuwave_detect_rec):
+          detector=qrs.ecgpuwave_detect_rec, dtype=np.float32):
     """
     Returns an RR-interval time-series given a PhysioNet record.
     :param rec_path: The path to the record (without any file extension).
@@ -18,7 +18,8 @@ def ecgrr(rec_path, ann_ext=None, channel=None, from_time=None, to_time=None,
     :param to_time: End time. A string in the PhysioNet time format.
     :param detector: A function to use for peak-detection. Will only be used if
     the ann_ext parameter was not provided.
-    :return:
+    :param dtype: Desired dtype of output tensors.
+    :return: Tuple of time axis and interval durations.
     """
     if not utils.is_record(rec_path, ann_ext=ann_ext):
         raise ValueError(f"Can't find record {rec_path}")
@@ -45,4 +46,4 @@ def ecgrr(rec_path, ann_ext=None, channel=None, from_time=None, to_time=None,
     trr[0] = 0.
     trr += start_time
 
-    return trr, rri
+    return trr.astype(dtype), rri.astype(dtype)
