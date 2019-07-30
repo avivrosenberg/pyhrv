@@ -29,6 +29,8 @@ def filtrr(t, rr,
     :meth:`filtrr_quotient`.
     :return: tuple of time axis and RR intervals after filtering.
     """
+    t_f, rr_f = t, rr
+
     if enable_range:
         t_f, rr_f, range_idx = filtrr_range(t, rr, **kw)
 
@@ -45,10 +47,12 @@ def filtrr_range(t, rr,
                  rr_min=v('filtrr.range.rr_min'),
                  rr_max=v('filtrr.range.rr_max'),):
 
-    range_outliers_idx = ((rr < rr_min) | (rr > rr_max)).astype(np.int8)
-    t = np.delete(t, range_outliers_idx)
-    rr = np.delete(rr, range_outliers_idx)
-    return t, rr, range_outliers_idx
+    idx = ((rr >= rr_min) & (rr <= rr_max))
+    t_f = t[idx]
+    rr_f = rr[idx]
+
+    outliers_idx = ~idx
+    return t_f, rr_f, outliers_idx
 
 
 def splitrr(t, rr, win_sec,
