@@ -42,12 +42,12 @@ filtrr:
             description: Whether to enable moving average-based filtering
             name: Enable moving average filter
             units: boolean
-        win_length:
+        win_samples:
             value: 10
             description: Length in samples of the moving average filter
             name: Moving average filter length
             units: Samples
-        win_threshold:
+        thresh_percent:
             value: 20
             description: Threshold percantage above/below the moving average filter value.
             name: Moving average filter threshold
