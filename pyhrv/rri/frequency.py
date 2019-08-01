@@ -41,23 +41,20 @@ def pxx_lomb(rri: np.ndarray, f_axis: np.ndarray, trr: np.ndarray = None,
     window_starts = (t_win * i for i in range(2 ** 63 - 1))
 
     pxx = np.zeros_like(f_axis)
-    win_idx = 0
-    for win_idx, win_start in enumerate(window_starts):
+    i = 0
+    for i, win_start in enumerate(window_starts):
         win_end = win_start + t_win
         if win_end > sig_duration:
             break
 
         win_idx = (trr >= win_start) & (trr < win_end)
         rri_win = rri[win_idx]
-        trr_win = trr[win_idx]
 
         min_samples_nyq = math.ceil(2 * f_axis[-1] * t_win)
         if len(rri_win) < min_samples_nyq:
             logger.warning(f'Nyquist criterion not met for lomb periodogram '
-                           f'in window {win_idx} '
-                           f'({len(rri_win)}/{min_samples_nyq} samples). '
-                           f'Skipping.')
-            continue
+                           f'in window {i} '
+                           f'({len(rri_win)}/{min_samples_nyq} samples). ')
 
         # Apply window
         win_coeffs = win_func(len(rri_win))
@@ -70,7 +67,7 @@ def pxx_lomb(rri: np.ndarray, f_axis: np.ndarray, trr: np.ndarray = None,
         pxx_win *= 1 / np.mean(win_coeffs)
         pxx += pxx_win
 
-    pxx /= win_idx
+    pxx /= i
     return pxx
 
 
