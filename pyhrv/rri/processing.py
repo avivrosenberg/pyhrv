@@ -7,6 +7,7 @@ import math
 import numpy as np
 import scipy.signal as sps
 
+import pyhrv.utils
 from pyhrv.conf import get_val as v
 
 
@@ -63,23 +64,23 @@ def _filtrr_ma(rr,
     return idx, rr_ma
 
 
-def splitrr(t, rr, win_sec,
+def splitrr(rri, win_sec,
             rr_min=v('filtrr.range.rr_min'),
             rr_max=v('filtrr.range.rr_max'), ):
     """
     Split an RR-interval signal into windows of approximately equal duration.
     The segments will be zero-padded so that they all have the same length.
-    :param t: Time axis of intervals.
-    :param rr: Intervals.
+    :param rri: Intervals.
     :param win_sec: Desired segment (window) duration.
     :param rr_min: minimal physiological RR-interval.
     :param rr_max: maximal physiological RR-interval.
     :return: A tensor of shape (N, L) where N is the number of segments and L
     is the maximal possible length of a segment, in intervals.
     """
+    rri, trr = pyhrv.utils.standardize_rri_trr(rri)
 
     pad_len = math.ceil(win_sec / rr_min)
-    sig_duration = t[-1]
+    sig_duration = trr[-1]
 
     window_starts = (win_sec * i for i in range(2 ** 63 - 1))
     window_tensors = []
@@ -89,7 +90,7 @@ def splitrr(t, rr, win_sec,
         if win_end > sig_duration:
             break
 
-        rr_win = rr[(t >= win_start) & (t < win_end)]
+        rr_win = rri[(trr >= win_start) & (trr < win_end)]
 
         if len(rr_win) < (win_sec / rr_max):
             continue
