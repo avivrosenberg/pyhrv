@@ -1,7 +1,6 @@
+import numpy as np
 import importlib
 from typing import NamedTuple
-
-import numpy as np
 
 
 def import_function_by_name(func_name):
@@ -11,7 +10,7 @@ def import_function_by_name(func_name):
     :param func_name: Full name.
     :return: Function object (callable).
     """
-    mod_name, func_name = func_name.rsplit('.', 1)
+    mod_name, func_name = func_name.rsplit(".", 1)
 
     if not mod_name:
         raise ValueError("Must provide fully-qualified function name.")
@@ -30,7 +29,7 @@ def sec_to_time(sec: float):
     respectively.
     """
     if sec < 0:
-        raise ValueError('Invalid argument value')
+        raise ValueError("Invalid argument value")
     d = int(sec // (3600 * 24))
     h = int((sec // 3600) % 24)
     m = int((sec // 60) % 60)
@@ -47,8 +46,10 @@ class __T(NamedTuple):
     ms: int
 
     def __repr__(self):
-        return f'{"" if self.d == 0 else f"{self.d}+"}' \
-            f'{self.h:02d}:{self.m:02d}:{self.s:02d}.{self.ms:03d}'
+        return (
+            f'{"" if self.d == 0 else f"{self.d}+"}'
+            f"{self.h:02d}:{self.m:02d}:{self.s:02d}.{self.ms:03d}"
+        )
 
 
 def np_squeeze_check(a: np.ndarray) -> np.ndarray:
@@ -76,7 +77,7 @@ def standardize_rri_trr(rri, trr=None):
     rri = np_squeeze_check(rri)
 
     if trr is None:
-        trr = np.r_[0., np.cumsum(rri)[:-1]]
+        trr = np.r_[0.0, np.cumsum(rri)[:-1]]
     else:
         trr = np_squeeze_check(trr)
         if len(trr) != len(rri):

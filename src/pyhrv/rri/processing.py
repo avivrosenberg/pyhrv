@@ -3,7 +3,6 @@ This module contains algorithms that process RR-interval time series and
 produce a processed RR-interval time series.
 """
 import math
-
 import numpy as np
 import scipy.signal as sps
 
@@ -11,10 +10,13 @@ import pyhrv.utils
 from pyhrv.conf import get_val as v
 
 
-def filtrr(t, rr,
-           enable_range=v('filtrr.range.enable'),
-           enable_moving_average=v('filtrr.moving_average.enable'),
-           **kw):
+def filtrr(
+    t,
+    rr,
+    enable_range=v("filtrr.range.enable"),
+    enable_moving_average=v("filtrr.moving_average.enable"),
+    **kw,
+):
     """
     Detects and removes outliers in RR interval data.
     Performs three types of different outlier detection: Range based
@@ -43,28 +45,30 @@ def filtrr(t, rr,
     return t_f, rr_f
 
 
-def _filtrr_range(rr,
-                  rr_min=v('filtrr.range.rr_min'),
-                  rr_max=v('filtrr.range.rr_max'), **kw):
+def _filtrr_range(
+    rr, rr_min=v("filtrr.range.rr_min"), rr_max=v("filtrr.range.rr_max"), **kw
+):
 
     # None disables min/max filtering
     if rr_min is None:
-        rr_min = 0.
+        rr_min = 0.0
     if rr_max is None:
-        rr_max = np.float('inf')
+        rr_max = np.float("inf")
 
-    idx = ((rr >= rr_min) & (rr <= rr_max))
+    idx = (rr >= rr_min) & (rr <= rr_max)
     return idx
 
 
-def _filtrr_ma(rr,
-               win_len=v('filtrr.moving_average.win_samples'),
-               win_thresh=v('filtrr.moving_average.thresh_percent'),
-               **kw):
-    b_fir = np.r_[np.ones(win_len), 0., np.ones(win_len)].astype(np.float32)
+def _filtrr_ma(
+    rr,
+    win_len=v("filtrr.moving_average.win_samples"),
+    win_thresh=v("filtrr.moving_average.thresh_percent"),
+    **kw,
+):
+    b_fir = np.r_[np.ones(win_len), 0.0, np.ones(win_len)].astype(np.float32)
     b_fir *= 1 / (2 * win_len)
 
-    rr_ma = sps.filtfilt(b_fir, 1., rr)
+    rr_ma = sps.filtfilt(b_fir, 1.0, rr)
 
     win_thresh /= 100
     idx = np.abs(rr - rr_ma) <= (win_thresh * rr_ma)
@@ -72,9 +76,12 @@ def _filtrr_ma(rr,
     return idx, rr_ma
 
 
-def splitrr(rri, win_sec,
-            rr_min=v('filtrr.range.rr_min'),
-            rr_max=v('filtrr.range.rr_max'), ):
+def splitrr(
+    rri,
+    win_sec,
+    rr_min=v("filtrr.range.rr_min"),
+    rr_max=v("filtrr.range.rr_max"),
+):
     """
     Split an RR-interval signal into windows of approximately equal duration.
     The segments will be zero-padded so that they all have the same length.
@@ -103,8 +110,9 @@ def splitrr(rri, win_sec,
         if len(rr_win) < (win_sec / rr_max):
             continue
 
-        rr_win = np.pad(rr_win, (0, pad_len - len(rr_win)), 'constant',
-                        constant_values=0)
+        rr_win = np.pad(
+            rr_win, (0, pad_len - len(rr_win)), "constant", constant_values=0
+        )
 
         window_tensors.append(rr_win)
 

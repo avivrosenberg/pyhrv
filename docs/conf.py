@@ -10,8 +10,8 @@
 
 import os
 import sys
-import inspect
 import shutil
+import inspect
 
 __location__ = os.path.join(
     os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -43,8 +43,9 @@ except FileNotFoundError:
     pass
 
 try:
-    import sphinx
     from pkg_resources import parse_version
+
+    import sphinx
 
     cmd_line_template = "sphinx-apidoc -f -o {outputdir} {moduledir}"
     cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
@@ -290,8 +291,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "pyhrv Documentation", "Aviv Rosenberg",
-     "manual"),
+    ("index", "user_guide.tex", "pyhrv Documentation", "Aviv Rosenberg", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

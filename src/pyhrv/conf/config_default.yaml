@@ -5,7 +5,7 @@
 rqrs:
     use_gqpost:
         value: false
-        description: Wheter to use gqpost for peak detection post-processing
+        description: Whether to use gqpost for peak detection post-processing
         name: Use gqpost
         units: boolean
     gqconf:
@@ -75,7 +75,7 @@ hrv_time:
 # Frequency-domain HRV parameters
 hrv_freq:
     methods:
-        value: [lomb, ar, welch]  # possible methods: 
+        value: [lomb, ar, welch]  # possible methods:
         description: Methods of spectral calculation (can be lomb/ar/welch/fft)
         name: Spectrum types
     norm_method:

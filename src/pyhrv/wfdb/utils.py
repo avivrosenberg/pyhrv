@@ -1,16 +1,19 @@
 import re
 import sys
-
-import os.path
-import numpy as np
 import wfdb
+import numpy as np
+import os.path
 
 from pyhrv.wfdb.consts import *
 
 
-def rdann_by_type(rec_path: str, ann_ext: str,
-                  from_time: str = None, to_time: str = None,
-                  types: str = WFDB_ANN_ALL_PEAK_TYPES):
+def rdann_by_type(
+    rec_path: str,
+    ann_ext: str,
+    from_time: str = None,
+    to_time: str = None,
+    types: str = WFDB_ANN_ALL_PEAK_TYPES,
+):
     """
     Reads WFDB annotation file and returns annotations of specific types.
     :param rec_path: Record path (without extension).
@@ -45,8 +48,8 @@ def rdann_by_type(rec_path: str, ann_ext: str,
     ann = wfdb.rdann(rec_path, ann_ext, sampfrom, sampto)
 
     # Find annotations of requested type
-    annotations_pattern = re.compile(fr'[{types}]')
-    joined_ann = str.join('', ann.symbol)
+    annotations_pattern = re.compile(fr"[{types}]")
+    joined_ann = str.join("", ann.symbol)
     matches = list(annotations_pattern.finditer(joined_ann))
 
     for i, m in enumerate(matches):
@@ -56,10 +59,7 @@ def rdann_by_type(rec_path: str, ann_ext: str,
         # Save annotation sample
         ann_to_idx[ann_type].append(ann.sample[ann_idx])
 
-    return {
-        ann_type: np.array(idxs)
-        for (ann_type, idxs) in ann_to_idx.items()
-    }
+    return {ann_type: np.array(idxs) for (ann_type, idxs) in ann_to_idx.items()}
 
 
 def find_ecg_channel(rec_path):
@@ -76,7 +76,7 @@ def find_ecg_channel(rec_path):
     return None
 
 
-def is_record(rec_path: str, dat_ext: str = 'dat', ann_ext: str = None):
+def is_record(rec_path: str, dat_ext: str = "dat", ann_ext: str = None):
     """
     Checks whether the given recrod path is a PhysioNet record.
     A record must have at least a header file (.hea), and either a data file
@@ -94,13 +94,13 @@ def is_record(rec_path: str, dat_ext: str = 'dat', ann_ext: str = None):
 
     .. [1] https://www.physionet.org/physiotools/wag/intro.htm
     """
-    if not os.path.isfile(f'{rec_path}.hea'):
+    if not os.path.isfile(f"{rec_path}.hea"):
         return False
 
-    if dat_ext and os.path.isfile(f'{rec_path}.{dat_ext}'):
+    if dat_ext and os.path.isfile(f"{rec_path}.{dat_ext}"):
         return True
 
-    if ann_ext and os.path.isfile(f'{rec_path}.{ann_ext}'):
+    if ann_ext and os.path.isfile(f"{rec_path}.{ann_ext}"):
         return True
 
     return False
@@ -119,21 +119,21 @@ def wfdb_time_to_samples(time: str, fs):
     """
 
     # 'e' means last sample
-    if time == 'e':
+    if time == "e":
         return -1
 
     # 's1234' means sample 1234
-    m = re.match(r'^s(\d+)$', time)
+    m = re.match(r"^s(\d+)$", time)
     if m:
         return int(m.group(1))
 
     # 'sss..s'
-    m = re.match(r'^\d+$', time)
+    m = re.match(r"^\d+$", time)
     if m:
         return int(int(time) * fs)
 
     # 'hh:mm:ss'
-    m = re.match(r'^(\d{1,2}):(\d{1,2}):(\d{1,2})$', time)
+    m = re.match(r"^(\d{1,2}):(\d{1,2}):(\d{1,2})$", time)
     if m:
         h, m, s = m.groups()
         h, m, s = int(h), int(m), int(s)
@@ -143,16 +143,16 @@ def wfdb_time_to_samples(time: str, fs):
         return int(seconds * fs)
 
     # 'mm:ss.yyy'
-    m = re.match(r'^(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?$', time)
+    m = re.match(r"^(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?$", time)
     if m:
         m, s, yyy = m.groups()
         m, s = int(m), int(s)
-        ms = int(yyy + (3 - len(yyy)) * '0') if yyy else 0
+        ms = int(yyy + (3 - len(yyy)) * "0") if yyy else 0
         if m > 60 or s > 60:
             raise ValueError("Invalid number of minutes or seconds")
-        seconds = m * 60 + s + ms / 1000.
+        seconds = m * 60 + s + ms / 1000.0
         return int(seconds * fs)
 
-    raise ValueError(f"The given time string ({time}) in not in a "
-                     f"recognised format.")
-
+    raise ValueError(
+        f"The given time string ({time}) in not in a " f"recognised format."
+    )

@@ -1,12 +1,9 @@
 import os
 import confuse
 
+CONFIG_DEFAULT_FILENAME = os.path.join(os.path.dirname(__file__), "config_default.yaml")
 
-CONFIG_DEFAULT_FILENAME = os.path.join(
-    os.path.dirname(__file__), 'config_default.yaml'
-)
-
-pyhrv_conf = confuse.LazyConfig('pyhrv', __name__)
+pyhrv_conf = confuse.LazyConfig("pyhrv", __name__)
 
 
 def _get(key: str):
@@ -22,7 +19,7 @@ def get_val(key: str):
     :param key: The full name of the parameter, e.g. foo.bar.baz
     :return: The value of that parameter.
     """
-    return _get(key + '.value')
+    return _get(key + ".value")
 
 
 def get_desc(key: str):
@@ -31,7 +28,7 @@ def get_desc(key: str):
     :param key: The full name of the parameter, e.g. 'foo.bar.baz'
     :return: The description of that parameter.
     """
-    return _get(key + '.description')
+    return _get(key + ".description")
 
 
 def get_override(common_prefix, **param_overrides):
@@ -49,7 +46,7 @@ def get_override(common_prefix, **param_overrides):
     """
     retvals = []
     for k, v in param_overrides.items():
-        retvals.append(v if v else get_val(f'{common_prefix}.{k}'))
+        retvals.append(v if v else get_val(f"{common_prefix}.{k}"))
     return retvals
 
 

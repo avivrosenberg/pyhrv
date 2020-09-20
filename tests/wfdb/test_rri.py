@@ -1,5 +1,7 @@
 import pytest
+
 import numpy as np
+
 import pyhrv.wfdb.rri as rri
 
 from . import TEST_RESOURCES_PATH
@@ -7,47 +9,47 @@ from . import TEST_RESOURCES_PATH
 
 class TestECGRR(object):
     def setup_method(self):
-        self.resources = TEST_RESOURCES_PATH.joinpath('wfdb')
+        self.resources = TEST_RESOURCES_PATH.joinpath("wfdb")
 
     def test_with_ann(self):
-        t, rr = rri.ecgrr(self.resources/'100', ann_ext='atr')
+        t, rr = rri.ecgrr(self.resources / "100", ann_ext="atr")
         self.sanity_checks(t, rr)
 
     def test_without_ann(self):
-        t, rr = rri.ecgrr(self.resources/'100')
+        t, rr = rri.ecgrr(self.resources / "100")
         self.sanity_checks(t, rr)
 
     def test_with_ann_from_time(self):
-        t, rr = rri.ecgrr(self.resources/'100', ann_ext='atr',
-                          from_time='01:30')
-        assert np.all(t >= 1.5*60)
+        t, rr = rri.ecgrr(self.resources / "100", ann_ext="atr", from_time="01:30")
+        assert np.all(t >= 1.5 * 60)
         self.sanity_checks(t, rr)
 
     def test_without_ann_from_time(self):
-        t, rr = rri.ecgrr(self.resources/'100', from_time='05:45')
-        assert np.all(t >= 5.75*60)
+        t, rr = rri.ecgrr(self.resources / "100", from_time="05:45")
+        assert np.all(t >= 5.75 * 60)
         self.sanity_checks(t, rr)
 
     def test_with_ann_to_time(self):
-        t, rr = rri.ecgrr(self.resources/'100', ann_ext='atr',
-                          to_time='10:30')
-        assert np.all(t <= 10.5*60)
+        t, rr = rri.ecgrr(self.resources / "100", ann_ext="atr", to_time="10:30")
+        assert np.all(t <= 10.5 * 60)
         self.sanity_checks(t, rr)
 
     def test_without_ann_to_time(self):
-        t, rr = rri.ecgrr(self.resources/'100', to_time='13:15')
-        assert np.all(t <= 13.25*60)
+        t, rr = rri.ecgrr(self.resources / "100", to_time="13:15")
+        assert np.all(t <= 13.25 * 60)
         self.sanity_checks(t, rr)
 
     def test_with_ann_from_to_time(self):
-        t, rr = rri.ecgrr(self.resources/'100', ann_ext='atr',
-                          from_time='02:15', to_time='10:30')
+        t, rr = rri.ecgrr(
+            self.resources / "100", ann_ext="atr", from_time="02:15", to_time="10:30"
+        )
         assert np.all((2.25 * 60 <= t) * (t <= 10.5 * 60))
         self.sanity_checks(t, rr)
 
     def test_without_ann_from_to_time(self):
-        t, rr = rri.ecgrr(self.resources/'100',
-                          from_time='00:02:15', to_time='00:10:30')
+        t, rr = rri.ecgrr(
+            self.resources / "100", from_time="00:02:15", to_time="00:10:30"
+        )
         assert np.all((2.25 * 60 <= t) * (t <= 10.5 * 60))
         self.sanity_checks(t, rr)
 

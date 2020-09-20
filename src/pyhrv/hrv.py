@@ -1,35 +1,37 @@
-import logging
 import math
+import numpy as np
+import logging
+import scipy.signal
+import scipy.interpolate
 from typing import Tuple, Union, Callable
 
-import numpy as np
-import scipy.interpolate
-import scipy.signal
-import pyhrv.rri.frequency as frequency
-
 import pyhrv.conf
+import pyhrv.rri.frequency as frequency
 from pyhrv import utils
 
 logger = logging.getLogger(__name__)
 
 
 def v(k):
-    return pyhrv.conf.get_val(f'hrv_freq.{k}')
+    return pyhrv.conf.get_val(f"hrv_freq.{k}")
 
 
-def hrv_freq(rri: np.ndarray, trr: np.ndarray = None,
-             methods: Tuple[str, ...] = v('methods'),
-             norm_method: str = v('norm_method'),
-             vlf_band: Tuple[float] = v('vlf_band'),
-             lf_band: Tuple[float] = v('lf_band'),
-             hf_band: Tuple[float] = v('hf_band'),
-             extra_bands: Tuple[float] = v('extra_bands'),
-             window_minutes: float = v('window_minutes'),
-             win_func: Union[str, Callable] = v('win_func'),
-             oversample_factor: float = v('osf'),
-             resample_factor: float = v('resample_factor'),
-             welch_overlap: float = v('welch_overlap'),
-             ar_order: int = v('ar_order')):
+def hrv_freq(
+    rri: np.ndarray,
+    trr: np.ndarray = None,
+    methods: Tuple[str, ...] = v("methods"),
+    norm_method: str = v("norm_method"),
+    vlf_band: Tuple[float] = v("vlf_band"),
+    lf_band: Tuple[float] = v("lf_band"),
+    hf_band: Tuple[float] = v("hf_band"),
+    extra_bands: Tuple[float] = v("extra_bands"),
+    window_minutes: float = v("window_minutes"),
+    win_func: Union[str, Callable] = v("win_func"),
+    oversample_factor: float = v("osf"),
+    resample_factor: float = v("resample_factor"),
+    welch_overlap: float = v("welch_overlap"),
+    ar_order: int = v("ar_order"),
+):
     """
     NN interval spectrum and frequency-domain HRV metrics.
     This function estimates
@@ -98,18 +100,22 @@ def hrv_freq(rri: np.ndarray, trr: np.ndarray = None,
     """
 
     # Validate methods
-    supported_methods = {'lomb', 'ar', 'welch'}
+    supported_methods = {"lomb", "ar", "welch"}
     methods = {m.lower() for m in methods}
     if not methods or not all(m in supported_methods for m in methods):
-        raise ValueError(f"Entries in methods must were {methods}, but they "
-                         f"must each be one of {supported_methods}")
+        raise ValueError(
+            f"Entries in methods must were {methods}, but they "
+            f"must each be one of {supported_methods}"
+        )
 
     # Validate norm method
-    supported_norm_methods = {'total', 'lf_af'}
+    supported_norm_methods = {"total", "lf_af"}
     norm_method = norm_method.lower()
     if norm_method not in supported_norm_methods:
-        raise ValueError(f"Unsupported norm_method ({norm_method}, must be "
-                         f"one of {supported_norm_methods}.)")
+        raise ValueError(
+            f"Unsupported norm_method ({norm_method}, must be "
+            f"one of {supported_norm_methods}.)"
+        )
 
     # Convert window func if needed
     if isinstance(win_func, str):
@@ -120,8 +126,9 @@ def hrv_freq(rri: np.ndarray, trr: np.ndarray = None,
 
     # Validate bands
     if not len(vlf_band) == len(lf_band) == len(hf_band) == 2:
-        raise ValueError("All frequency band vectors must have exactly two "
-                         "elements.")
+        raise ValueError(
+            "All frequency band vectors must have exactly two " "elements."
+        )
 
     # Use full signal if window_minutes is not defined
     if not window_minutes or window_minutes < 1:
@@ -146,34 +153,41 @@ def hrv_freq(rri: np.ndarray, trr: np.ndarray = None,
     )
 
     # Uniform time axis
-    trr_uni = np.r_[trr[0]:trr[-1]: 1 / fs_uni]
+    trr_uni = np.r_[trr[0] : trr[-1] : 1 / fs_uni]
     n_win_uni = math.floor(t_win / (1 / fs_uni))  # num samples per window
     num_windows_uni = math.floor(len(trr_uni) / n_win_uni)
 
     # Check Nyquist criterion
     if n_win_uni < 2 * f_max * t_win:
-        logger.warning('Nyquist criterion not met for given window length and '
-                       'frequency bands')
+        logger.warning(
+            "Nyquist criterion not met for given window length and " "frequency bands"
+        )
 
     # Calculate spectrums
     pxx = {}
-    if 'lomb' in methods:
-        pxx['lomb'] = frequency.pxx_lomb(rri, f_axis, trr, t_win, win_func)
+    if "lomb" in methods:
+        pxx["lomb"] = frequency.pxx_lomb(rri, f_axis, trr, t_win, win_func)
 
     # Resample on a uniform time axis to obtain spectral estimate
     rri_interpolator = scipy.interpolate.interp1d(
-        trr, rri, kind='cubic', assume_sorted=True, fill_value='extrapolate'
+        trr, rri, kind="cubic", assume_sorted=True, fill_value="extrapolate"
     )
     rri_uni = rri_interpolator(trr_uni)
 
-    if 'welch' in methods:
+    if "welch" in methods:
         welch_window = win_func(n_win_uni)
         welch_overlap = math.floor(n_win_uni * welch_overlap / 100)
         f_welch, pxx_welch = scipy.signal.welch(
-            rri_uni, fs=fs_uni, nperseg=n_win_uni,
-            noverlap=welch_overlap, window=welch_window, detrend='constant',
-            scaling='density', return_onesided=True)
+            rri_uni,
+            fs=fs_uni,
+            nperseg=n_win_uni,
+            noverlap=welch_overlap,
+            window=welch_window,
+            detrend="constant",
+            scaling="density",
+            return_onesided=True,
+        )
 
-        pxx['welch'] = pxx_welch[f_welch <= f_max]
+        pxx["welch"] = pxx_welch[f_welch <= f_max]
 
     return pxx, f_axis

@@ -1,5 +1,6 @@
-import numpy as np
 import pytest
+
+import numpy as np
 
 import pyhrv.utils as utils
 
@@ -12,7 +13,7 @@ class TestSecToTime(object):
 
     def test_zero(self):
         assert str(utils.sec_to_time(0)) == "00:00:00.000"
-        assert str(utils.sec_to_time(0.)) == "00:00:00.000"
+        assert str(utils.sec_to_time(0.0)) == "00:00:00.000"
 
     def test_milisec(self):
         assert str(utils.sec_to_time(0.2345)) == "00:00:00.234"
@@ -31,19 +32,18 @@ class TestSecToTime(object):
         assert str(utils.sec_to_time(3600 + 123.456)) == "01:02:03.456"
 
     def test_days(self):
-        assert str(utils.sec_to_time(
-            23 * 3600 + 15 * 60 + 59.456)) == "23:15:59.456"
-        assert str(utils.sec_to_time(
-            24 * 3600 + 15 * 60 + 59.456)) == "1+00:15:59.456"
-        assert str(utils.sec_to_time(
-            97 * 3600 + 59 * 60 + 59.456)) == "4+01:59:59.456"
-        assert str(utils.sec_to_time(
-            97 * 3600 + 59 * 60 + 59.456 + 0.544)) == "4+02:00:00.000"
+        assert str(utils.sec_to_time(23 * 3600 + 15 * 60 + 59.456)) == "23:15:59.456"
+        assert str(utils.sec_to_time(24 * 3600 + 15 * 60 + 59.456)) == "1+00:15:59.456"
+        assert str(utils.sec_to_time(97 * 3600 + 59 * 60 + 59.456)) == "4+01:59:59.456"
+        assert (
+            str(utils.sec_to_time(97 * 3600 + 59 * 60 + 59.456 + 0.544))
+            == "4+02:00:00.000"
+        )
 
 
 class TestImportFunctionByName(object):
     def test_(self):
-        f = utils.import_function_by_name('pyhrv.utils.sec_to_time')
+        f = utils.import_function_by_name("pyhrv.utils.sec_to_time")
         assert str(f(97 * 3600 + 59 * 60 + 59.456)) == "4+01:59:59.456"
 
 
