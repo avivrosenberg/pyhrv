@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = ""
     cfg.tag_prefix = ""
-    cfg.parentdir_prefix = "pyhrv-"
-    cfg.versionfile_source = "pyhrv/_version.py"
+    cfg.parentdir_prefix = "None"
+    cfg.versionfile_source = "src/pyhrv/_version.py"
     cfg.verbose = False
     return cfg
 
