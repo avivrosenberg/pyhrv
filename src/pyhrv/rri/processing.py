@@ -45,14 +45,22 @@ def filtrr(t, rr,
 
 def _filtrr_range(rr,
                   rr_min=v('filtrr.range.rr_min'),
-                  rr_max=v('filtrr.range.rr_max'), ):
+                  rr_max=v('filtrr.range.rr_max'), **kw):
+
+    # None disables min/max filtering
+    if rr_min is None:
+        rr_min = 0.
+    if rr_max is None:
+        rr_max = np.float('inf')
+
     idx = ((rr >= rr_min) & (rr <= rr_max))
     return idx
 
 
 def _filtrr_ma(rr,
                win_len=v('filtrr.moving_average.win_samples'),
-               win_thresh=v('filtrr.moving_average.thresh_percent')):
+               win_thresh=v('filtrr.moving_average.thresh_percent'),
+               **kw):
     b_fir = np.r_[np.ones(win_len), 0., np.ones(win_len)].astype(np.float32)
     b_fir *= 1 / (2 * win_len)
 

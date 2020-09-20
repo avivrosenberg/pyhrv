@@ -1,32 +1,48 @@
+# from setuptools import setup
+# import versioneer
+#
+# requirements = [
+#     # package requirements go here
+#     "wfdb",
+#     "numpy",
+#     "tqdm",
+#     {'pip': "confuse"},
+# ]
+#
+# setup(
+#     name='pyhrv',
+#     version=versioneer.get_version(),
+#     cmdclass=versioneer.get_cmdclass(),
+#     description="Heart rate variability analysis in python",
+#     author="Aviv Rosenberg",
+#     author_email='avivr@cs.technion.ac.il',
+#     url='https://github.com/avivrosenberg/pyhrv',
+#     packages=['pyhrv'],
+#     entry_points={
+#         'console_scripts': [
+#             'pyhrv=pyhrv.cli:cli'
+#         ]
+#     },
+#     install_requires=requirements,
+#     keywords='pyhrv',
+#     classifiers=[
+#         'Programming Language :: Python :: 2.7',
+#         'Programming Language :: Python :: 3.6',
+#     ]
+# )
+# -*- coding: utf-8 -*-
 from setuptools import setup
-import versioneer
+from pkg_resources import VersionConflict, require
 
-requirements = [
-    # package requirements go here
-    "wfdb",
-    "numpy",
-    "tqdm",
-    {'pip': "confuse"},
-]
+import sys
 
-setup(
-    name='pyhrv',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
-    description="Heart rate variability analysis in python",
-    author="Aviv Rosenberg",
-    author_email='avivr@cs.technion.ac.il',
-    url='https://github.com/avivrosenberg/pyhrv',
-    packages=['pyhrv'],
-    entry_points={
-        'console_scripts': [
-            'pyhrv=pyhrv.cli:cli'
-        ]
-    },
-    install_requires=requirements,
-    keywords='pyhrv',
-    classifiers=[
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
-    ]
-)
+try:
+    require("setuptools>=38.3")
+except VersionConflict:
+    print("Error: version of setuptools is too old (<38.3)!")
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    setup(use_pyscaffold=True)
+

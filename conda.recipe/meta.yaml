@@ -7,7 +7,7 @@ package:
   version: {{ data['version'] }}
 
 source:
-  path: ..
+  path: ../src
 
 build:
   # If the installation is complex, or different between Unix and Windows, use

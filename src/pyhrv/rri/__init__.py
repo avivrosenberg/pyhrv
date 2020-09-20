@@ -1,2 +1,2 @@
-import pyhrv.wfdb
+import pyhrv.rri.frequency
 import pyhrv.rri.processing

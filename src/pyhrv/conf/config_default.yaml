@@ -27,7 +27,7 @@ filtrr:
             name: Enable range filter
             units: boolean
         rr_min:
-            value: 0.32
+            value: 0.3
             description: Minimal allowed RR interval duration
             name: RR min
             units: Seconds
@@ -134,8 +134,8 @@ hrv_freq:
         name: Frequency resampling factor
         units: n.u.
     win_func:
-        value: hamming
-        description: Name of window to apply to segments. Should be one of the matlab window functions.
+        value: scipy.signal.windows.hamming
+        description: Name of window to apply to segments. Should be one of the scipy window functions.
         name: Window function.
         units: n.u.
 
