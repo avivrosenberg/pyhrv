@@ -1,0 +1,41 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+sphinx = "*"
+recommonmark = "*"
+"sphinxcontrib.mermaid" = "*"
+# testing
+pytest = "*"
+pytest-cov = "*"
+pytest-xdist = "*"
+pytest-repeat = "*"
+pytest-benchmark = "*"
+pytest-mock = "*"
+# interactive python
+ipython = "*"
+jupyterlab = "*"
+mypy = "*"
+pre-commit = "*"
+black = "*"
+awscli = "*"
+
+[packages]
+pyhrv = {editable = true, path = "."}
+# Note: Allowing minor versions to differ
+# Change to == to pin versions.
+# (See also PEP440)
+# Note 2: These should be specified in setup.cfg
+numpy = "~=1.19.0"
+scipy = "~=1.5.1"
+matplotlib = "~=3.3.0"
+wfdb = "~=3.1.0"
+attrs = "~=19.3.0"
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
